@@ -1,5 +1,4 @@
 const env = process.env.NODE_ENV || "development";
-
 const config = require("./config/config")[env];
 const app = require("express")();
 
@@ -27,7 +26,4 @@ db.once("open", function () {
   console.log("You got it!");
 });
 
-app.listen(
-  config.port,
-  console.log(`Listening on port ${config.port}! Now its up to you...`)
-);
+app.listen(config.port, console.log(`Listening on port ${config.port}!`));
