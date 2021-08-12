@@ -12,12 +12,22 @@ module.exports = (app) => {
     });
   });
   app.get("/details/:id", function (req, res) {
-    Cube.find(function (err, cubes) {
+    Cube.findById(req.params.id, function (err, cube) {
       if (err) return console.error(err);
-      const path = url.parse(req.url).pathname;
-      let currentId = path.split("/")[2];
-      let currentCube = cubes.filter((cube) => cube._id == currentId);
-      res.render("details", { currentCube });
+      // const path = url.parse(req.url).pathname;
+      // let currentId = path.split("/")[2];
+      // let currentCube = cubes.filter((cube) => cube._id == currentId);
+      Accessory.find(function (err, accessories) {
+        if (err) return console.error(err);
+      }).then((response) => {
+        let attachedArray = [];
+        response.forEach((item) => {
+          if (cube.addedAccessories.includes(item._id)) {
+            attachedArray.push(item);
+          }
+        });
+        res.render("details", { cube, attachedArray });
+      });
     });
   });
   app.get("/create", function (req, res) {
@@ -64,6 +74,42 @@ module.exports = (app) => {
     } catch (err) {
       console.log(err);
     }
+  });
+  app.post("/attach/accessory/:id", function (req, res) {
+    console.log(req.body, req.params);
+
+    // Retrieve value of selection menu (chosen accessory)
+    const selectedAccessory = req.body.accessory;
+
+    // Retrieve current cube's id from the "/:id" parameter in the url path
+    const cubeId = req.params.id;
+
+    // Find current cube by Id
+    Cube.findById(cubeId, function (err, cube) {
+      if (err) return console.error(err);
+
+      // Get collection of existing accessories
+      Accessory.find(function (err, accessories) {
+        // Filter out the accessory doc associated with the chosen option
+        let attachThisAccessory = accessories.filter(
+          (accessory) => accessory.name == selectedAccessory
+        )[0];
+
+        if (!cube.addedAccessories.includes(attachThisAccessory._id)) {
+          cube.addedAccessories.push(attachThisAccessory);
+
+          cube.save(function (err) {
+            if (err) return console.error(err);
+
+            res.redirect(`/details/${cubeId}`);
+          });
+        } else {
+          console.log("Accessory Already Attached to this Cube!");
+
+          res.redirect(`/details/${cubeId}`);
+        }
+      });
+    });
   });
 
   app.get("/*", function (req, res) {

@@ -30,11 +30,11 @@
             class="cube"
             src="https://images-na.ssl-images-amazon.com/images/I/71WS9kb-JFL._SL1300_.jpg"
           /> }}
-          <form action="/attach/accessory" method="GET">
+          <form action="" method="POST">
             <label for="accessory">Accessories</label>
             <select id="accessory" name="accessory">
               {{#each accessories}}
-                <option value={{this.name}}>{{this.name}}</option>
+                <option value={{name}}>{{name}}</option>
               {{/each}}
             </select>
             <input type="submit" value="Attach" />
